@@ -1,0 +1,142 @@
+Metadata-Version: 2.2
+Name: wisent
+Version: 0.1.1
+Summary: Client library for interacting with the Wisent backend services
+Home-page: https://github.com/wisent-ai/wisent
+Author: Wisent Team
+Author-email: info@wisent.ai
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.25.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: torch>=2.0.0
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: tqdm>=4.60.0
+Requires-Dist: transformers>=4.30.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Wisent
+
+A Python client library for interacting with the Wisent backend services.
+
+## Installation
+
+```bash
+pip install wisent
+```
+
+## Features
+
+- **Activations**: Extract and send model activations to the Wisent backend
+- **Control Vectors**: Retrieve and apply control vectors for model inference
+- **Inference**: Utilities for applying control vectors during inference
+- **Utilities**: Helper functions for common tasks
+
+## Quick Start
+
+```python
+from wisent import WisentClient
+
+# Initialize the client
+client = WisentClient(api_key="your_api_key", base_url="https://api.wisent.ai")
+
+# Extract activations from a model and send to backend
+activations = client.activations.extract(
+    model_name="mistralai/Mistral-7B-Instruct-v0.1",
+    prompt="Tell me about quantum computing",
+    layers=[0, 12, 24]
+)
+
+# Get a control vector from the backend
+control_vector = client.control_vector.get(
+    name="helpful",
+    model="mistralai/Mistral-7B-Instruct-v0.1"
+)
+
+# Apply a control vector during inference
+response = client.inference.generate_with_control(
+    model_name="mistralai/Mistral-7B-Instruct-v0.1",
+    prompt="Tell me about quantum computing",
+    control_vectors={"helpful": 0.8, "concise": 0.5}
+)
+
+# Print the response
+print(response.text)
+```
+
+## Advanced Usage
+
+### Extracting Activations
+
+```python
+from wisent.activations import ActivationExtractor
+
+# Create an extractor
+extractor = ActivationExtractor(
+    model_name="mistralai/Mistral-7B-Instruct-v0.1",
+    device="cuda"
+)
+
+# Extract activations for a specific prompt
+activations = extractor.extract(
+    prompt="Tell me about quantum computing",
+    layers=[0, 12, 24],
+    tokens_to_extract=[-10, -1]  # Extract last 10 tokens and final token
+)
+
+# Send activations to the Wisent backend
+from wisent import WisentClient
+client = WisentClient(api_key="your_api_key")
+client.activations.upload(activations)
+```
+
+### Working with Control Vectors
+
+```python
+from wisent.control_vector import ControlVectorManager
+
+# Initialize the manager
+manager = ControlVectorManager(api_key="your_api_key")
+
+# Get a control vector
+helpful_vector = manager.get("helpful", model="mistralai/Mistral-7B-Instruct-v0.1")
+
+# Combine multiple vectors
+combined_vector = manager.combine(
+    vectors={
+        "helpful": 0.8,
+        "concise": 0.5
+    },
+    model="mistralai/Mistral-7B-Instruct-v0.1"
+)
+
+# Apply during inference
+from wisent.inference import Inferencer
+inferencer = Inferencer(model_name="mistralai/Mistral-7B-Instruct-v0.1")
+response = inferencer.generate(
+    prompt="Tell me about quantum computing",
+    control_vector=combined_vector,
+    method="caa"  # Context-Aware Addition
+)
+```
+
+## Documentation
+
+For full documentation, visit [docs.wisent.ai](https://docs.wisent.ai).
+
+## License
+
+MIT
