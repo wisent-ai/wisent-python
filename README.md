@@ -1,5 +1,13 @@
 # Wisent
 
+<!-- wisent-readme-signals:start -->
+[![Release](https://img.shields.io/github/v/release/wisent-ai/wisent-python?display_name=tag&sort=semver)](https://github.com/wisent-ai/wisent-python/releases)
+[![Downloads](https://img.shields.io/github/downloads/wisent-ai/wisent-python/total)](https://github.com/wisent-ai/wisent-python/releases)
+[![License](https://img.shields.io/github/license/wisent-ai/wisent-python)](https://github.com/wisent-ai/wisent-python)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Wisent-5865F2?logo=discord&logoColor=white)](https://discord.gg/qRjpkthq54)
+<!-- wisent-readme-signals:end -->
+
+
 A Python client library for interacting with the Wisent backend services. Wisent enables developers to control language model behavior using activation engineering.
 
 ## Installation
