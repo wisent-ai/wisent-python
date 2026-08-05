@@ -30,6 +30,7 @@ pip install -e .
 - **Control Vectors**: Retrieve and apply control vectors for model inference
 - **Inference**: Utilities for applying control vectors during inference
 - **Utilities**: Helper functions for common tasks
+- **First use**: A durable guided journey that completes only after a parsed authenticated inference result
 
 ## Quick Start
 
@@ -62,6 +63,34 @@ response = client.inference.generate_with_control(
 # Print the response
 print(response.text)
 ```
+
+## First Use
+
+The public client exposes the pinned `first-use` journey. Inspect the journey,
+then use the normal authenticated `InferenceClient.generate` path:
+
+```python
+from wisent import WisentClient
+
+client = WisentClient(api_key="your_api_key")
+session = client.first_use.start()
+client.first_use.inspect(session["attempt"]["attempt_id"])
+
+result = client.inference.generate(
+    model_name="mistralai/Mistral-7B-Instruct-v0.1",
+    prompt="Tell me about quantum computing",
+)
+state = client.first_use.state(session["attempt"]["attempt_id"])
+assert state["attempt"]["evidence"]["api_result_observed"] is True
+```
+
+Creating the client, configuring authentication, dispatching a request, or
+receiving an API/response-validation error does not complete first use.
+Progress and the canonical event outbox are stored atomically at
+`~/.wisent/onboarding-state.json`; set `WISENT_ONBOARDING_STATE_PATH` to choose
+another location. When `STADO_ONBOARDING_TOKEN` is configured, the adapter uses
+Stado `bundle.read`, `experiments.assign`, `events.collect`, and `state.read`;
+the exact pinned bundle and local durable queue remain available offline.
 
 ## Advanced Usage
 

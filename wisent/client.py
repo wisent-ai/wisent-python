@@ -7,6 +7,7 @@ from typing import Dict, Optional
 from wisent.activations import ActivationsClient
 from wisent.control_vector import ControlVectorClient
 from wisent.inference import InferenceClient
+from wisent.onboarding import FirstUseRuntime
 from wisent.utils.auth import AuthManager
 
 
@@ -36,10 +37,24 @@ class WisentClient:
         # Initialize auth manager
         self.auth = AuthManager(api_key)
         
-        # Initialize sub-clients
+        # Initialize the durable first-use runtime without advancing it.
+        self.first_use = FirstUseRuntime()
+
+        # Initialize sub-clients. Only a parsed result from the supported,
+        # authenticated inference operation is allowed to complete first use.
+        result_observer = (
+            self.first_use._observe_api_result
+            if isinstance(api_key, str) and bool(api_key.strip())
+            else None
+        )
         self.activations = ActivationsClient(self.auth, base_url, timeout)
         self.control_vector = ControlVectorClient(self.auth, base_url, timeout)
-        self.inference = InferenceClient(self.auth, base_url, timeout)
+        self.inference = InferenceClient(
+            self.auth,
+            base_url,
+            timeout,
+            result_observer=result_observer,
+        )
     
     def __repr__(self) -> str:
         return f"WisentClient(base_url='{self.base_url}')"
