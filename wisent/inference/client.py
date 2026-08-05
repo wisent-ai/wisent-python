@@ -2,7 +2,7 @@
 Client for interacting with the inference API.
 """
 
-from typing import Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from wisent.inference.models import InferenceConfig, InferenceResponse
 from wisent.utils.auth import AuthManager
@@ -19,9 +19,27 @@ class InferenceClient:
         timeout: Request timeout in seconds
     """
     
-    def __init__(self, auth_manager: AuthManager, base_url: str, timeout: int = 60):
+    def __init__(
+        self,
+        auth_manager: AuthManager,
+        base_url: str,
+        timeout: int = 60,
+        result_observer: Optional[Callable[[str, Dict], None]] = None,
+    ):
         self.auth_manager = auth_manager
         self.http_client = HTTPClient(base_url, auth_manager.get_headers(), timeout)
+        self._result_observer = result_observer
+
+    def _notify_result(self, operation: str, result: Dict) -> None:
+        """Keep onboarding bookkeeping from changing the API result contract."""
+        if self._result_observer is None:
+            return
+        try:
+            self._result_observer(operation, result)
+        except Exception:
+            # The result has already succeeded and parsed. A local onboarding
+            # storage or delivery problem must not turn it into an API error.
+            return
     
     def generate(
         self,
@@ -56,7 +74,9 @@ class InferenceClient:
             }
         )
         
-        return InferenceResponse(**data)
+        result = InferenceResponse(**data)
+        self._notify_result("inference.generate", data)
+        return result
     
     def generate_with_control(
         self,
