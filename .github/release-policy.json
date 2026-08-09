@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "releases": false,
+  "reason": "This checkout is not the owner of the published distribution: setup.py points to the separate wisent repository, and this repository has no publisher contract of its own."
+}
