@@ -1,0 +1,15 @@
+[automation]
+managed = true
+source_fingerprint = "7b67121a151e4f48"
+category = "developer"
+
+[banner]
+title = "Control models from Python."
+description = "Python client for Wisent model steering and activation-engineering services."
+product = "Wisent"
+url = "wisent.ai"
+theme = "dark"
+layout = "signal-left"
+art_seed = "wisent-python"
+width = 1584
+height = 396
