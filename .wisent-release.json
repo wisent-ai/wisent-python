@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "product": "wisent-python",
+  "releases": false,
+  "reason": "The canonical wisent Python distribution and its PyPI publisher moved to the wisent repository; this legacy repository was superseded and has no independent release artifact or channel."
+}
