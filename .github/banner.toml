@@ -1,11 +1,13 @@
 [automation]
 managed = true
-source_fingerprint = "da2b0cc80e370965"
+source_fingerprint = "a5208a191bf016e9"
 category = "agent"
+copy_status = "missing"
+approved_in = ""
 
 [banner]
-title = "Control models from Python."
-description = "Python client for Wisent model steering and activation-engineering services."
+title = "Wisent Python"
+description = ""
 product = "Wisent"
 url = "wisent.com"
 theme = "dark"
