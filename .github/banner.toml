@@ -1,15 +1,15 @@
 [automation]
 managed = true
-source_fingerprint = "7b67121a151e4f48"
-category = "developer"
+source_fingerprint = "da2b0cc80e370965"
+category = "agent"
 
 [banner]
 title = "Control models from Python."
 description = "Python client for Wisent model steering and activation-engineering services."
 product = "Wisent"
-url = "wisent.ai"
+url = "wisent.com"
 theme = "dark"
-layout = "signal-left"
+layout = "orbit-left"
 art_seed = "wisent-python"
 width = 1584
 height = 396
