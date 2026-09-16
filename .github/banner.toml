@@ -1,0 +1,17 @@
+[automation]
+managed = true
+source_fingerprint = "a5208a191bf016e9"
+category = "agent"
+copy_status = "missing"
+approved_in = ""
+
+[banner]
+title = "Wisent Python"
+description = ""
+product = "Wisent"
+url = "wisent.com"
+theme = "dark"
+layout = "orbit-left"
+art_seed = "wisent-python"
+width = 1584
+height = 396
