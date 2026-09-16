@@ -20,3 +20,7 @@ disallow_incomplete_defs = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
+# The package under test is this checkout, so `pytest` from the repository
+# root tests the working tree rather than whatever is installed, and no test
+# file has to patch sys.path.
+pythonpath = ["."]

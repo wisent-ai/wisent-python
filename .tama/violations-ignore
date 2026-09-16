@@ -1,0 +1,11 @@
+# The README banner: one SVG drawn once, shown at the top of the README by
+# GitHub. Its length is the number of shapes in the drawing, and splitting a
+# drawing into modules is not a thing a reader or a renderer could use.
+assets/readme-banner.svg
+#
+# The repository root. Every file there is read by a tool at exactly that
+# path: pip reads setup.py, the tooling reads pyproject.toml, GitHub reads
+# README.md and LICENSE, and build_and_install.sh is the documented way to
+# build and install this SDK from a checkout. Named without a trailing slash,
+# so every file in the tree is still read by the 300-line rule.
+.
