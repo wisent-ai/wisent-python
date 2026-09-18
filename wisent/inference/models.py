@@ -7,6 +7,8 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
+from wisent.constants import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, DEFAULT_TOP_K, DEFAULT_TOP_P
+
 
 class InferenceConfig(BaseModel):
     """
@@ -21,10 +23,10 @@ class InferenceConfig(BaseModel):
         stop_sequences: Sequences that stop generation
     """
     
-    max_tokens: int = 256
-    temperature: float = 0.7
-    top_p: float = 0.9
-    top_k: int = 50
+    max_tokens: int = DEFAULT_MAX_TOKENS
+    temperature: float = DEFAULT_TEMPERATURE
+    top_p: float = DEFAULT_TOP_P
+    top_k: int = DEFAULT_TOP_K
     repetition_penalty: float = 1.0
     stop_sequences: Optional[List[str]] = None
 

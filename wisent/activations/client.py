@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Union
 
 from wisent.activations.extractor import ActivationExtractor
 from wisent.activations.models import Activation, ActivationBatch
+from wisent.constants import DEFAULT_PAGE_SIZE
 from wisent.utils.auth import AuthManager
 from wisent.utils.http import HTTPClient
 
@@ -76,7 +77,7 @@ class ActivationsClient:
     def list(
         self,
         model_name: Optional[str] = None,
-        limit: int = 100,
+        limit: int = DEFAULT_PAGE_SIZE,
         offset: int = 0,
     ) -> List[Dict]:
         """

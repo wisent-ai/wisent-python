@@ -13,8 +13,13 @@ import sys
 import torch
 
 from wisent import WisentClient
+from wisent.constants import DEFAULT_TEMPERATURE, DEFAULT_TOP_K, DEFAULT_TOP_P
 from wisent.inference import Inferencer, InferenceConfig
 from wisent.control_vector import ControlVectorManager
+
+# The listing shows a handful of vectors; a short answer keeps the demo quick.
+_LISTING_PREVIEW = 5
+_DEMO_MAX_TOKENS = 100
 
 
 def main():
@@ -46,10 +51,10 @@ def main():
     print(f"Listing available control vectors for {args.model}...")
     vectors = client.control_vector.list(model=args.model)
     print(f"Found {len(vectors)} control vectors:")
-    for i, vector in enumerate(vectors[:5]):  # Show only the first 5
+    for i, vector in enumerate(vectors[:_LISTING_PREVIEW]):
         print(f"  {i+1}. {vector['name']}: {vector.get('description', 'No description')}")
-    if len(vectors) > 5:
-        print(f"  ... and {len(vectors) - 5} more")
+    if len(vectors) > _LISTING_PREVIEW:
+        print(f"  ... and {len(vectors) - _LISTING_PREVIEW} more")
     
     # Get a control vector
     if vectors:
@@ -131,10 +136,10 @@ def main():
         
         # Create an inference configuration
         config = InferenceConfig(
-            max_tokens=100,
-            temperature=0.7,
-            top_p=0.9,
-            top_k=50,
+            max_tokens=_DEMO_MAX_TOKENS,
+            temperature=DEFAULT_TEMPERATURE,
+            top_p=DEFAULT_TOP_P,
+            top_k=DEFAULT_TOP_K,
             repetition_penalty=1.0
         )
         

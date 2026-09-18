@@ -5,6 +5,7 @@ Main client class for interacting with the Wisent backend services.
 from typing import Dict, Optional
 
 from wisent.activations import ActivationsClient
+from wisent.constants import DEFAULT_TIMEOUT_SECONDS
 from wisent.control_vector import ControlVectorClient
 from wisent.inference import InferenceClient
 from wisent.onboarding import FirstUseRuntime
@@ -28,7 +29,7 @@ class WisentClient:
         self,
         api_key: str,
         base_url: str = "https://api.wisent.ai",
-        timeout: int = 60,
+        timeout: int = DEFAULT_TIMEOUT_SECONDS,
     ):
         self.api_key = api_key
         self.base_url = base_url

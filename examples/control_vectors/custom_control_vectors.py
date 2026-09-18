@@ -16,8 +16,12 @@ import numpy as np
 
 from wisent import WisentClient
 from wisent.activations import ActivationExtractor
+from wisent.constants import DEFAULT_TEMPERATURE, DEFAULT_TOP_K, DEFAULT_TOP_P
 from wisent.control_vector import ControlVector
 from wisent.inference import Inferencer, InferenceConfig
+
+# A short answer keeps the demo quick.
+_DEMO_MAX_TOKENS = 100
 
 
 def main():
@@ -199,10 +203,10 @@ def main():
     
     # Create an inference configuration
     config = InferenceConfig(
-        max_tokens=100,
-        temperature=0.7,
-        top_p=0.9,
-        top_k=50,
+        max_tokens=_DEMO_MAX_TOKENS,
+        temperature=DEFAULT_TEMPERATURE,
+        top_p=DEFAULT_TOP_P,
+        top_k=DEFAULT_TOP_K,
         repetition_penalty=1.0
     )
     

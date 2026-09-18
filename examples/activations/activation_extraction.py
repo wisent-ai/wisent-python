@@ -18,6 +18,11 @@ import torch
 from wisent import WisentClient
 from wisent.activations import ActivationExtractor
 
+# A rough middle layer per architecture: Mistral-7B and LLaMA-7B have 32 layers,
+# and 12 sits mid-way for many smaller models.
+_MIDDLE_LAYER_32 = 16
+_MIDDLE_LAYER_DEFAULT = 12
+
 
 def main():
     """Extract activations from a language model and analyze them."""
@@ -105,11 +110,11 @@ def main():
     # Determine middle layer based on model architecture
     # This is a rough estimate and may need adjustment for different models
     if "mistral" in args.model.lower():
-        middle_layer = 16  # Mistral-7B has 32 layers
+        middle_layer = _MIDDLE_LAYER_32
     elif "llama" in args.model.lower():
-        middle_layer = 16  # LLaMA-7B has 32 layers
+        middle_layer = _MIDDLE_LAYER_32
     else:
-        middle_layer = 12  # Default for many models
+        middle_layer = _MIDDLE_LAYER_DEFAULT
     
     custom_layers = [0, middle_layer, -1]  # First, middle, and last layers
     custom_tokens = [-10, -1]  # Extract last 10 tokens and final token

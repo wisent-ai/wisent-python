@@ -5,6 +5,7 @@ Client for interacting with the control vector API.
 from typing import Dict, List, Optional, Union
 
 from wisent.control_vector.models import ControlVector
+from wisent.constants import DEFAULT_PAGE_SIZE
 from wisent.utils.auth import AuthManager
 from wisent.utils.http import HTTPClient
 
@@ -40,7 +41,7 @@ class ControlVectorClient:
     def list(
         self,
         model: Optional[str] = None,
-        limit: int = 100,
+        limit: int = DEFAULT_PAGE_SIZE,
         offset: int = 0,
     ) -> List[Dict]:
         """

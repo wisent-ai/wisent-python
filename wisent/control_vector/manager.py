@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 import torch
 
 from wisent.control_vector.models import ControlVector, ControlVectorConfig
+from wisent.constants import DEFAULT_PAGE_SIZE, DEFAULT_TIMEOUT_SECONDS
 from wisent.utils.auth import AuthManager
 from wisent.utils.http import HTTPClient
 
@@ -28,7 +29,7 @@ class ControlVectorManager:
         self,
         api_key: str,
         base_url: str = "https://api.wisent.ai",
-        timeout: int = 60,
+        timeout: int = DEFAULT_TIMEOUT_SECONDS,
     ):
         self.auth = AuthManager(api_key)
         self.http_client = HTTPClient(base_url, self.auth.get_headers(), timeout)
@@ -62,7 +63,7 @@ class ControlVectorManager:
     def list(
         self,
         model: Optional[str] = None,
-        limit: int = 100,
+        limit: int = DEFAULT_PAGE_SIZE,
         offset: int = 0,
     ) -> List[Dict]:
         """

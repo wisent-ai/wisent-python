@@ -16,6 +16,7 @@ import sys
 import torch
 
 from wisent import WisentClient
+from wisent.constants import DEFAULT_TOP_K, DEFAULT_TOP_P
 from wisent.control_vector import ControlVectorManager
 from wisent.inference import Inferencer, InferenceConfig
 
@@ -71,8 +72,8 @@ def main():
     config = InferenceConfig(
         max_tokens=args.max_tokens,
         temperature=args.temperature,
-        top_p=0.9,
-        top_k=50,
+        top_p=DEFAULT_TOP_P,
+        top_k=DEFAULT_TOP_K,
         repetition_penalty=1.0
     )
     

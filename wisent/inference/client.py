@@ -4,6 +4,7 @@ Client for interacting with the inference API.
 
 from typing import Callable, Dict, List, Optional, Union
 
+from wisent.constants import DEFAULT_TIMEOUT_SECONDS
 from wisent.inference.models import InferenceConfig, InferenceResponse
 from wisent.utils.auth import AuthManager
 from wisent.utils.http import HTTPClient
@@ -23,7 +24,7 @@ class InferenceClient:
         self,
         auth_manager: AuthManager,
         base_url: str,
-        timeout: int = 60,
+        timeout: int = DEFAULT_TIMEOUT_SECONDS,
         result_observer: Optional[Callable[[str, Dict], None]] = None,
     ):
         self.auth_manager = auth_manager

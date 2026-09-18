@@ -15,6 +15,7 @@ from typing import Dict, List, Optional
 import torch
 
 from wisent import WisentClient
+from wisent.constants import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, DEFAULT_TOP_K, DEFAULT_TOP_P
 from wisent.control_vector import ControlVectorManager
 from wisent.inference import Inferencer, InferenceConfig
 
@@ -99,10 +100,10 @@ def main():
     
     # Create inference config
     config = InferenceConfig(
-        max_tokens=256,
-        temperature=0.7,
-        top_p=0.9,
-        top_k=50,
+        max_tokens=DEFAULT_MAX_TOKENS,
+        temperature=DEFAULT_TEMPERATURE,
+        top_p=DEFAULT_TOP_P,
+        top_k=DEFAULT_TOP_K,
         repetition_penalty=1.0
     )
     
