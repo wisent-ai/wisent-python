@@ -1,0 +1,6 @@
+# The ignored build directory: the venv the tests run in, the state files they write, and
+# the wheels build_and_install.sh produces.
+build/
+dist/
+*.egg-info/
+__pycache__/
