@@ -1,9 +1,11 @@
 """Stado's onboarding operations, and the check a served bundle must pass.
 
-Every call is one POST to Stado's integration API. An unreachable or
-unusable answer raises ``RuntimeError`` naming the operation, and each caller
-decides what that means: a bundle read keeps the pinned journey, an experiment
-assignment keeps the control variant, a state read is simply not made.
+Every call is one POST to Stado's integration API. Without
+``STADO_ONBOARDING_TOKEN`` the SDK is in its documented local mode: the pinned
+journey, the control variant, and an event queue that stays on disk. With the
+token configured, an unreachable Stado, a non-object answer, an answer without
+the operation's object, or a served definition this release does not render
+raises ``RuntimeError`` naming the operation, and the caller sees it.
 
 ``validate_bundle`` is what makes a served definition usable. A bundle whose
 identity, screens, actions or renderers are not the ones this release renders
@@ -115,6 +117,11 @@ class StadoOnboarding:
         self.token = os.environ.get("STADO_ONBOARDING_TOKEN", "")
         self.timeout = float(os.environ.get("STADO_ONBOARDING_TIMEOUT_SECONDS", "2"))
 
+    @property
+    def configured(self) -> bool:
+        """Whether Stado is to be asked at all."""
+        return bool(self.token)
+
     def request(self, operation: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         if not self.token:
             raise RuntimeError("STADO_ONBOARDING_TOKEN is not configured")
@@ -131,72 +138,78 @@ class StadoOnboarding:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 decoded = json.loads(response.read().decode("utf-8"))
-                return decoded if isinstance(decoded, dict) else {}
         except (OSError, urllib.error.URLError, ValueError, json.JSONDecodeError) as error:
             raise RuntimeError("Stado {} unavailable".format(operation)) from error
+        if not isinstance(decoded, dict):
+            raise RuntimeError("Stado {} answered with {} instead of an object".format(operation, type(decoded).__name__))
+        return decoded
 
     def read_bundle(self) -> Tuple[Dict[str, Any], str]:
-        """The served definition if it is this release's journey, else the pinned one.
+        """The served definition, or the pinned one when Stado is not configured.
 
         The second element names which of the two was used, and it is reported
         with the attempt, so a machine can say where its journey came from.
         """
-        try:
-            response = self.request(
-                "bundle.read",
-                {
-                    "client_id": CLIENT_ID,
-                    "product_id": PRODUCT_ID,
-                    "journey_id": JOURNEY_ID,
-                    "journey_version": JOURNEY_VERSION,
-                },
+        if not self.configured:
+            return PINNED_JOURNEY, "bundled"
+        response = self.request(
+            "bundle.read",
+            {
+                "client_id": CLIENT_ID,
+                "product_id": PRODUCT_ID,
+                "journey_id": JOURNEY_ID,
+                "journey_version": JOURNEY_VERSION,
+            },
+        )
+        candidate = response.get("bundle")
+        if not isinstance(candidate, dict):
+            raise RuntimeError("Stado bundle.read answered without a bundle object")
+        if not validate_bundle(candidate):
+            raise RuntimeError(
+                "Stado bundle.read served a definition this release does not render; "
+                "expected journey {} version {}".format(JOURNEY_ID, JOURNEY_VERSION)
             )
-            candidate = response.get("bundle", response)
-            if isinstance(candidate, dict) and validate_bundle(candidate):
-                candidate = dict(candidate)
-                candidate["journey_version_id"] = JOURNEY_VERSION_ID
-                return candidate, "stado"
-        except RuntimeError:
-            pass
-        return PINNED_JOURNEY, "bundled"
+        candidate = dict(candidate)
+        candidate["journey_version_id"] = JOURNEY_VERSION_ID
+        return candidate, "stado"
 
     def assign(self, attempt_id: str) -> Dict[str, str]:
-        """The experiment variant for this attempt, or the control variant."""
-        try:
-            response = self.request(
-                "experiments.assign",
-                {
-                    "client_id": CLIENT_ID,
-                    "product_id": PRODUCT_ID,
-                    "journey_id": JOURNEY_ID,
-                    "journey_version_id": JOURNEY_VERSION_ID,
-                    "attempt_id": attempt_id,
-                },
-            )
-            assignment = response.get("assignment", response)
-            experiment_id = assignment.get("experiment_id")
-            variant_id = assignment.get("variant_id")
-            if isinstance(experiment_id, str) and isinstance(variant_id, str):
-                return {"experiment_id": experiment_id, "variant_id": variant_id}
-        except RuntimeError:
-            pass
-        return dict(CONTROL_ASSIGNMENT)
+        """The experiment variant for this attempt, or the control variant when Stado is not configured."""
+        if not self.configured:
+            return dict(CONTROL_ASSIGNMENT)
+        response = self.request(
+            "experiments.assign",
+            {
+                "client_id": CLIENT_ID,
+                "product_id": PRODUCT_ID,
+                "journey_id": JOURNEY_ID,
+                "journey_version_id": JOURNEY_VERSION_ID,
+                "attempt_id": attempt_id,
+            },
+        )
+        assignment = response.get("assignment")
+        if not isinstance(assignment, dict):
+            raise RuntimeError("Stado experiments.assign answered without an assignment object")
+        experiment_id = assignment.get("experiment_id")
+        variant_id = assignment.get("variant_id")
+        if not isinstance(experiment_id, str) or not isinstance(variant_id, str):
+            raise RuntimeError("Stado experiments.assign answered without experiment_id and variant_id strings")
+        return {"experiment_id": experiment_id, "variant_id": variant_id}
 
     def read_state(self, attempt_id: str) -> None:
-        """Tells Stado this machine resumed; an unreachable Stado costs nothing."""
-        try:
-            self.request(
-                "state.read",
-                {
-                    "client_id": CLIENT_ID,
-                    "product_id": PRODUCT_ID,
-                    "journey_id": JOURNEY_ID,
-                    "journey_version_id": JOURNEY_VERSION_ID,
-                    "attempt_id": attempt_id,
-                },
-            )
-        except RuntimeError:
-            pass
+        """Tells Stado this machine resumed; nothing is sent when Stado is not configured."""
+        if not self.configured:
+            return
+        self.request(
+            "state.read",
+            {
+                "client_id": CLIENT_ID,
+                "product_id": PRODUCT_ID,
+                "journey_id": JOURNEY_ID,
+                "journey_version_id": JOURNEY_VERSION_ID,
+                "attempt_id": attempt_id,
+            },
+        )
 
     def collect(self, events: list) -> None:
         """Hands over queued events; the caller keeps them if this raises."""

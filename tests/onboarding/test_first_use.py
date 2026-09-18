@@ -1,9 +1,10 @@
-"""The SDK's first-use journey, run for real with Stado unreachable.
+"""The SDK's first-use journey, run for real without a configured Stado.
 
-No token is configured, so every Stado call raises inside the transport and
+No token is configured, so the transport is in its documented local mode and
 the runtime takes the path a developer's machine takes: the pinned journey,
 events queued on disk, and the journey completing on a parsed result anyway.
-What the tests read back is the state file the product wrote.
+What the tests read back is the state file the product wrote. One story
+configures a token against a port nothing listens on and reads the refusal.
 """
 
 from __future__ import annotations
@@ -48,13 +49,25 @@ def _written(runtime: FirstUseRuntime) -> dict:
     return json.loads(runtime.state_file.read_text(encoding="utf-8"))
 
 
-def test_start_uses_the_pinned_journey_when_stado_cannot_be_reached(runtime) -> None:
+def test_start_uses_the_pinned_journey_when_stado_is_not_configured(runtime) -> None:
     started = runtime.start()
 
     assert started["bundle_source"] == "bundled"
     assert started["journey"] == PINNED_JOURNEY
     assert started["attempt"]["current_screen_id"] == "inspect-journey"
     assert started["attempt"]["assignment"]["variant_id"] == "control"
+
+
+def test_a_configured_stado_that_cannot_be_reached_is_an_error_not_the_pinned_journey(runtime, monkeypatch) -> None:
+    monkeypatch.setenv("STADO_ONBOARDING_TOKEN", "configured-but-unreachable")
+    monkeypatch.setenv("STADO_URL", "http://127.0.0.1:9")
+    monkeypatch.setenv("STADO_ONBOARDING_TIMEOUT_SECONDS", "0.5")
+    configured = FirstUseRuntime()
+    configured.state_file = runtime.state_file
+
+    with pytest.raises(RuntimeError, match="Stado bundle.read unavailable"):
+        configured.start()
+    assert not runtime.state_file.exists(), "no attempt is recorded for a journey that was never served"
 
 
 def test_the_three_screens_complete_on_a_parsed_result(runtime) -> None:

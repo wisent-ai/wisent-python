@@ -101,9 +101,14 @@ Creating the client, configuring authentication, dispatching a request, or
 receiving an API/response-validation error does not complete first use.
 Progress and the canonical event outbox are stored atomically at
 `~/.wisent/onboarding-state.json`; set `WISENT_ONBOARDING_STATE_PATH` to choose
-another location. When `STADO_ONBOARDING_TOKEN` is configured, the adapter uses
-Stado `bundle.read`, `experiments.assign`, `events.collect`, and `state.read`;
-the exact pinned bundle and local durable queue remain available offline.
+another location. Without `STADO_ONBOARDING_TOKEN` the adapter is in local
+mode: the exact pinned bundle, the control variant and the durable local queue.
+With the token configured, the adapter uses Stado `bundle.read`,
+`experiments.assign`, `events.collect`, and `state.read`, and a Stado that
+cannot be reached, answers without the operation's object, or serves a
+definition this release does not render raises `RuntimeError` naming the
+operation (for example `Stado bundle.read unavailable`) instead of quietly
+using the pinned journey. `tests/onboarding/` runs both modes for real.
 
 ## Advanced Usage
 
